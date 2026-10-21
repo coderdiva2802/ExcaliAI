@@ -1,0 +1,175 @@
+@import "tailwindcss";
+
+/* ─────────────────────────────────────────────────────────
+   ExcaliAI — design tokens & component classes
+   Dark, quiet UI so the canvas content stays the focus.
+   ───────────────────────────────────────────────────────── */
+
+@theme {
+  --color-canvas: #121212; /* matches Excalidraw's dark canvas */
+  --font-sans: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-display: "Outfit", "Inter", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+
+  --animate-fade-in: fade-in 0.25s ease-out both;
+  --animate-slide-up: slide-up 0.25s ease-out both;
+
+  @keyframes fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  @keyframes slide-up {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+  background: var(--color-canvas);
+  color: #e2e8f0;
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+@layer components {
+  /* Floating surface used by the header, panel and prompt bar. */
+  .surface {
+    background: rgb(22 24 31 / 0.88);
+    border: 1px solid rgb(255 255 255 / 0.07);
+    box-shadow: 0 8px 28px -8px rgb(0 0 0 / 0.6);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+  }
+
+  .btn-primary {
+    @apply grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-indigo-500 text-white transition-colors
+      hover:bg-indigo-400 disabled:cursor-not-allowed disabled:bg-white/[0.06] disabled:text-slate-500;
+  }
+
+  .btn-ghost {
+    @apply inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-sm text-slate-300 transition-colors
+      hover:bg-white/[0.07] hover:text-slate-100;
+  }
+
+  .btn-icon {
+    @apply grid h-8 w-8 place-items-center rounded-lg text-slate-400 transition-colors hover:bg-white/[0.07] hover:text-slate-100;
+  }
+
+  .chip {
+    @apply rounded-full border border-white/[0.08] bg-[rgb(22_24_31/0.85)] px-3 py-1.5 text-xs text-slate-300 backdrop-blur
+      transition-colors hover:border-indigo-400/40 hover:text-slate-100 disabled:opacity-50;
+  }
+
+  .suggestion {
+    @apply flex items-start gap-3 text-left rounded-xl border border-white/[0.07] bg-[rgb(22_24_31/0.8)] px-4 py-3 backdrop-blur
+      transition-colors hover:border-indigo-400/40 hover:bg-[rgb(30_33_44/0.9)];
+  }
+}
+
+/* Visible keyboard focus everywhere. */
+:where(button, a, [tabindex]):focus-visible {
+  outline: 2px solid rgb(129 140 248 / 0.8);
+  outline-offset: 2px;
+}
+
+/* ── Excalidraw integration ─────────────────────────────── */
+
+/* Hide chrome that conflicts with the lesson UI; keep tools, zoom and undo. */
+.excalidraw .layer-ui__wrapper__top-right,
+.excalidraw .main-menu-trigger,
+.excalidraw .help-icon,
+.excalidraw .layer-ui__wrapper__footer-center,
+.excalidraw .HintViewer {
+  display: none !important;
+}
+
+/* Phones: Excalidraw's bottom toolbar would sit under the prompt bar, so hide it
+   (the canvas stays pannable/zoomable by touch) and lift its "scroll back" button. */
+@media (max-width: 767px) {
+  .excalidraw .App-bottom-bar {
+    display: none !important;
+  }
+  .excalidraw .scroll-back-to-content {
+    bottom: 11rem !important;
+  }
+}
+
+.no-scrollbar {
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* ── Canvas overlays (formulas, code) ───────────────────── */
+
+.formula-overlay {
+  padding: 6px 14px;
+  border-radius: 10px;
+  border: 1.5px solid transparent;
+  background: rgb(22 24 31 / 0.85);
+  color: #f1f5f9;
+  white-space: nowrap;
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+.formula-overlay .katex-display {
+  margin: 0.2em 0;
+}
+.formula-overlay--raw {
+  font-family: var(--font-mono);
+  font-size: 15px !important;
+  color: #cbd5e1;
+}
+
+.code-overlay {
+  position: relative;
+  max-width: 600px;
+  padding: 16px 20px;
+  border-radius: 10px;
+  border: 1px solid rgb(255 255 255 / 0.1);
+  background: rgb(15 17 23 / 0.96);
+  box-shadow: 0 10px 30px rgb(0 0 0 / 0.45);
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+.code-overlay pre {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 14px;
+  line-height: 1.7;
+  color: #e2e8f0;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+.code-overlay__lang {
+  position: absolute;
+  top: 6px;
+  right: 12px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: rgb(255 255 255 / 0.35);
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-thumb {
+  background: rgb(255 255 255 / 0.12);
+  border-radius: 6px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
