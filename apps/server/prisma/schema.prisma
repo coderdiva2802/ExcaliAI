@@ -1,0 +1,99 @@
+// ─────────────────────────────────────────────────────────
+// Prisma Schema — ExcaliAI
+// ─────────────────────────────────────────────────────────
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ── User ───────────────────────────────────────────────
+
+model User {
+  id        String   @id @default(cuid())
+  email     String?  @unique
+  name      String?
+  lessons   Lesson[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// ── Lesson ─────────────────────────────────────────────
+
+model Lesson {
+  id          String           @id @default(cuid())
+  title       String?
+  topic       String
+  userId      String?
+  user        User?            @relation(fields: [userId], references: [id])
+  messages    LessonMessage[]
+  snapshots   CanvasSnapshot[]
+  /// Current canvas scene data (JSON blob).
+  canvasState Json?
+  /// Current agent/lesson state (JSON blob).
+  lessonState Json?
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
+  @@index([userId])
+}
+
+// ── Lesson Message ─────────────────────────────────────
+
+model LessonMessage {
+  id        String   @id @default(cuid())
+  lessonId  String
+  lesson    Lesson   @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  role      String   // "user" | "assistant" | "system"
+  content   String
+  /// DSL actions generated in this turn (assistant only).
+  actions   Json?
+  createdAt DateTime @default(now())
+
+  @@index([lessonId])
+}
+
+// ── Canvas Snapshot ────────────────────────────────────
+
+model CanvasSnapshot {
+  id        String   @id @default(cuid())
+  lessonId  String
+  lesson    Lesson   @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  /// Full scene element data.
+  elements  Json
+  appState  Json?
+  /// Teaching step number at the time of snapshot.
+  step      Int
+  createdAt DateTime @default(now())
+
+  @@index([lessonId])
+}
+
+// ── Sketch ─────────────────────────────────────────────
+// Drawings for structures without a built-in template (from a
+// reference SVG or an AI sketch). Drafts are reused only in the
+// lesson that created them until approved.
+
+model Sketch {
+  id        String   @id
+  /// Canonical subject key ("ear"), used for lookup.
+  key       String
+  slug      String
+  title     String
+  /// "draft" | "approved"
+  status    String   @default("draft")
+  /// The lesson that created it (drafts are only reused there).
+  lessonId  String?
+  /// { kind, credit, title, url, author, license }
+  source    Json
+  /// { paths, parts } — the same shape as a built-in template.
+  drawing   Json
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([key])
+}

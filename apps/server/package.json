@@ -1,0 +1,38 @@
+{
+  "name": "@excaliai/server",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc --noEmit",
+    "start": "tsx src/index.ts",
+    "test:diagrams": "tsx src/diagram/selftest.ts",
+    "db:generate": "prisma generate",
+    "db:push": "prisma db push",
+    "db:studio": "prisma studio",
+    "test:agents": "tsx src/agent/selftest.ts",
+    "test": "tsx src/diagram/selftest.ts && tsx src/agent/selftest.ts && tsx src/sketch/selftest.ts",
+    "test:sketches": "tsx src/sketch/selftest.ts",
+    "ai:benchmark": "tsx src/llm/benchmark.ts",
+    "db:import-json": "tsx scripts/import-json-lessons.ts"
+  },
+  "dependencies": {
+    "@excaliai/shared": "*",
+    "@excaliai/visual-dsl": "*",
+    "@fastify/cors": "^11.0.0",
+    "@google/genai": "^1.0.0",
+    "@prisma/client": "^6.2.0",
+    "dotenv": "^16.4.0",
+    "fastify": "^5.2.0",
+    "nanoid": "^5.0.0",
+    "openchemlib": "^9.25.1",
+    "tsx": "^4.19.0",
+    "zod": "^3.23.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "prisma": "^6.2.0",
+    "typescript": "^5.7.0"
+  }
+}
