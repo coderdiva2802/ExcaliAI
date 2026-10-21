@@ -1,0 +1,10 @@
+node_modules/
+dist/
+.env
+*.log
+.turbo/
+.vite/
+.data/
+.env.*
+!.env.example
+*.tsbuildinfo
